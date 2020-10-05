@@ -109,11 +109,19 @@ sugar _fn (args...)
         if (expected != n)
             error
                 .. "expected " (tostring expected) " arguments, got " (tostring n)
+    let arg-bindings =
+        fold (bindings = '()) for i arg in (enumerate args)
+            cons
+                qq
+                    [let] [arg] = (args @ [i])
+                bindings
     qq
         [let] [name] =
             [bitcast]
                 [fn] (argc args)
                     [arity-check] [(countof args)] argc
+                    unquote-splice arg-bindings
+                    unquote-splice body
                 [RLClosure]
 
 run-stage;
