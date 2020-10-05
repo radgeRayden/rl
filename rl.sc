@@ -39,32 +39,6 @@ spice box-value (v)
         error
             .. "could not box value of type " (repr T)
 
-# spice unbox-value (v)
-#     inline unbox-bool (v)
-#         v as bool
-#     inline unbox-sint (v)
-#         v as i64 as f64
-#     inline unbox-uint (v)
-#         v as u64 as f64
-#     inline unbox-real (v)
-#         v as f64
-
-#     if (T < integer)
-#         if (T == bool)
-#             spice-quote
-#                 unbox-bool v
-#         elseif ('signed? T)
-#             spice-quote
-#                 unbox-sint v
-#         else
-#             spice-quote
-#                 unbox-uint v
-#     elseif (T < real)
-#         spice-quote
-#             unbox-real v
-#     else
-#         error "unexpected type, can't unbox"
-
 spice rl-call (self args...)
     let argc = ('argcount args...)
     let box-args = (sc_expression_new)
