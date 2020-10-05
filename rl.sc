@@ -1,42 +1,78 @@
 using import struct
 using import Map
+using import enum
 global rl-env : (Map Symbol Value)
 
-spice unbox-value (v)
-    inline unbox-bool (v)
-        v as bool
-    inline unbox-sint (v)
-        v as i64 as f64
-    inline unbox-uint (v)
-        v as u64 as f64
-    inline unbox-real (v)
-        v as f64
+enum RLValue
+    Bool   : bool
+    Number : f64
+    String : string
+    Symbol : Symbol
+    List   : list
 
-    let T kind = ('typeof v) ('kind v)
+spice box-value (v)
+    let T = ('typeof v)
+
+    if (T == RLValue)
+        return v
+
     if (T < integer)
         if (T == bool)
             spice-quote
-                unbox-bool v
-        elseif ('signed? T)
-            spice-quote
-                unbox-sint v
+                RLValue.Bool v
         else
             spice-quote
-                unbox-uint v
+                RLValue.Number (v as f64)
     elseif (T < real)
         spice-quote
-            unbox-real v
+            RLValue.Number (v as f64)
+    elseif (T == string)
+        spice-quote
+            RLValue.String (v as string)
+    elseif (T == Symbol)
+        spice-quote
+            RLValue.Symbol (v as Symbol)
+    elseif (T == list)
+        spice-quote
+            RLValue.List (v as list)
     else
-        error "unexpected type, can't unbox"
+        error
+            .. "could not box value of type " (repr T)
+
+# spice unbox-value (v)
+#     inline unbox-bool (v)
+#         v as bool
+#     inline unbox-sint (v)
+#         v as i64 as f64
+#     inline unbox-uint (v)
+#         v as u64 as f64
+#     inline unbox-real (v)
+#         v as f64
+
+#     if (T < integer)
+#         if (T == bool)
+#             spice-quote
+#                 unbox-bool v
+#         elseif ('signed? T)
+#             spice-quote
+#                 unbox-sint v
+#         else
+#             spice-quote
+#                 unbox-uint v
+#     elseif (T < real)
+#         spice-quote
+#             unbox-real v
+#     else
+#         error "unexpected type, can't unbox"
 
 spice rl-call (self args...)
     let argc = ('argcount args...)
     let box-args = (sc_expression_new)
 
-    let args = `(alloca-array Value [argc])
+    let args = `(alloca-array RLValue [argc])
 
     for i a in (enumerate ('args args...))
-        sc_expression_append box-args `((args @ i) = (spice-quote a))
+        sc_expression_append box-args `((args @ i) = (box-value a))
 
     sc_expression_append box-args `args
     let call-expr =
