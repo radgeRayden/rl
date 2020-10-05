@@ -121,6 +121,7 @@ sugar _fn (args...)
                 [fn] (argc args)
                     [arity-check] [(countof args)] argc
                     unquote-splice arg-bindings
+                    [unlet] args
                     unquote-splice body
                 [RLClosure]
 
