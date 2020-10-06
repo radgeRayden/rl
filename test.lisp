@@ -7,6 +7,10 @@
     (print c))
 
 (print3 "12" "23" "34")
+
+(fn ten () 10)
+(print (ten))
+
 (print
     (if false
         "yes"

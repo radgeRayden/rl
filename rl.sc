@@ -47,7 +47,10 @@ let _dummy =
 
 typedef RLClosure : (typeof _dummy)
 
-spice box-value (v)
+# we use va to accomodate for receiving nothing.
+spice box-value (...)
+    verify-count ('argcount ...) 0 1
+    let v = ('getarg ... 0)
     let T = ('typeof v)
 
     if (T == RLValue)
@@ -72,7 +75,7 @@ spice box-value (v)
     elseif (T == list)
         spice-quote
             RLValue.List (v as list)
-    elseif (T == Nothing)
+    elseif ((T == Nothing) or (T == void))
         spice-quote
             RLValue.Nil (tuple)
     elseif (T == RLClosure)
@@ -163,8 +166,9 @@ sugar _fn (args...)
                     [unlet] this-function
                     unquote-splice arg-bindings
                     [unlet] args
-                    unquote-splice body
-                    [RLValue.Nil];
+                    [box-value]
+                        [do]
+                            unquote-splice body
 
 run-stage;
 
