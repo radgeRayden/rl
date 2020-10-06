@@ -129,6 +129,12 @@ sugar _if (args...)
     default
         error "incorrect if syntax"
 
+inline rl-conv-fn (f)
+    bitcast
+        static-typify f i32
+            viewof (mutable@ RLValue)
+        RLClosure
+
 sugar _fn (args...)
     let name args body =
         sugar-match args...
@@ -148,17 +154,15 @@ sugar _fn (args...)
                 bindings
     qq
         [let] [name] =
-            [bitcast]
-                [static-typify]
-                    [fn] (argc args)
-                        [arity-check] [(countof args)] argc
-                        unquote-splice arg-bindings
-                        [unlet] args
-                        unquote-splice body
-                        [RLValue.Nil];
-                    [i32]
-                    [(viewof (mutable@ RLValue))]
-                [RLClosure]
+            [rl-conv-fn]
+                [fn] (argc args)
+                    [arity-check] [(countof args)] argc
+                    [let] [name] = ([rl-conv-fn] this-function)
+                    [unlet] this-function
+                    unquote-splice arg-bindings
+                    [unlet] args
+                    unquote-splice body
+                    [RLValue.Nil];
 
 run-stage;
 
