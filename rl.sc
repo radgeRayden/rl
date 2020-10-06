@@ -16,7 +16,7 @@ enum RLValue
     Nil    = none
     Closure : _RLClosure
 
-    inline tag (self)
+    inline type (self)
         'apply self
             (T self) -> T.Name
     inline __repr (self)
@@ -33,7 +33,7 @@ enum RLValue
             f args...
         default
             hide-traceback;
-            error (.. "cannot call value of type " (tostring ('tag self)))
+            error (.. "cannot call value of type " (tostring ('type self)))
 
 let _dummy =
     static-typify
