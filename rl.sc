@@ -32,6 +32,7 @@ enum RLValue
         case Closure (f)
             f args...
         default
+            hide-traceback;
             error (.. "cannot call value of type " (tostring ('tag self)))
 
 let _dummy =
@@ -108,8 +109,6 @@ typedef+ RLClosure
 typedef+ _RLClosure
     inline __call (self args...)
         (bitcast self RLClosure) args...
-
-run-stage;
 
 inline arity-check (expected n)
     if (expected != n)
