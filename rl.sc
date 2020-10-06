@@ -196,7 +196,7 @@ inline gen-binary-op (f)
 
 let rl-primitives =
     do
-        let + - / // * ** < > <= >= == != =
+        let + - / * ** < > <= >= == != =
             va-map
                 gen-binary-op
                 _ + - / * ** < > <= >= == !=
