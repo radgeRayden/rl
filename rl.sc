@@ -96,6 +96,29 @@ spice box-value (...)
         error
             .. "could not box value of type " (repr T)
 
+fn box-Value (v)
+    let T = ('typeof v)
+    if (T < integer)
+        if (T == bool)
+            RLValue.Bool (v as bool)
+        else
+            RLValue.Number (v as i32 as f64)
+    elseif (T < real)
+        RLValue.Number (v as f32 as f64)
+    elseif (T == string)
+        RLValue.String (v as string)
+    elseif (T == Symbol)
+        RLValue.Symbol (v as Symbol)
+    elseif (T == list)
+        RLValue.List (v as list)
+    elseif ((T == Nothing) or (T == void))
+        RLValue.Nil (tuple)
+    elseif (T == RLClosure)
+        RLValue.Closure (bitcast (v as RLClosure) _RLClosure)
+    else
+        error
+            .. "could not box value of type " (repr T)
+
 spice rl-call (self args...)
     let argc = ('argcount args...)
     let box-args = (sc_expression_new)
@@ -207,6 +230,29 @@ run-stage;
 _fn rlprint (arg)
     print arg
 
+_fn rlcar (lst)
+    let lst =
+        rlvalue-unbox-as lst RLValue.List
+    let at = (sc_list_at lst)
+    box-Value at
+
+_fn rlcdr (lst)
+    let lst =
+        rlvalue-unbox-as lst RLValue.List
+    box-value (sc_list_next lst)
+
+_fn rlempty? (lst)
+    let lst =
+        rlvalue-unbox-as lst RLValue.List
+    empty? lst
+
+_fn rlcons (v lst)
+    let lst =
+        rlvalue-unbox-as lst RLValue.List
+    'apply v
+        inline (T self)
+            cons self lst
+
 inline gen-binary-op (f)
     _fn (a b)
         f (rlvalue-unbox-as a RLValue.Number) (rlvalue-unbox-as b RLValue.Number)
@@ -220,10 +266,7 @@ let rl-primitives =
         let and or not
         let sugar-quote
         let true false
-        let cons
-        let car = sc_list_at
-        let cdr = sc_list_next
-        let empty? inline
+        let car cdr cons empty? = rlcar rlcdr rlcons rlempty?
         let if = _if
         let fn = _fn
         let print = rlprint

@@ -38,3 +38,10 @@
         (- a c)))
 
 (print (+ 1 2))
+
+(fn map (f lst)
+    (if (empty? lst)
+        '()
+        (cons (f (car lst)) (map f (cdr lst)))))
+
+(print (map (fn (x) (* x 2)) '(1 2 3 4)))
