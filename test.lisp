@@ -7,6 +7,12 @@
     (print c))
 
 (print3 "12" "23" "34")
+(print
+    (if false
+        "yes"
+        (if true
+            "!"
+            "!!")))
 
 (fn ff (f) (f 1 2 3))
 (ff print3)

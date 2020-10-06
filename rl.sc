@@ -115,7 +115,20 @@ inline arity-check (expected n)
         error
             .. "expected " (tostring expected) " arguments, got " (tostring n)
 
-sugar _if ()
+sugar _if (args...)
+    sugar-match args...
+    case (condition tclause fclause)
+        qq
+            [embed]
+                [if] [condition]
+                    [box-value]
+                        [tclause]
+                else
+                    [box-value]
+                        [fclause]
+    default
+        error "incorrect if syntax"
+
 sugar _fn (args...)
     let name args body =
         sugar-match args...
