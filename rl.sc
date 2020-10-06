@@ -6,6 +6,8 @@ global rl-env : (Map Symbol Value)
 # we use this in place of RLClosure, since it depends on RLValue.
 # Later on we'll add a method so it correctly implies to the function pointer on call.
 typedef _RLClosure : voidstar
+    inline __repr (self)
+        default-styler 'style-type "Closure"
 
 enum RLValue
     Bool   : bool

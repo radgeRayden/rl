@@ -16,4 +16,6 @@
 
 (fn ff (f) (f 1 2 3))
 (ff print3)
+(print print3)
+
 (ff 3)
