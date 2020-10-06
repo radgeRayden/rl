@@ -22,4 +22,4 @@
 (ff print3)
 (print print3)
 
-(ff 3)
+(print (+ 1 2))

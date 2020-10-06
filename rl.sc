@@ -178,9 +178,28 @@ run-stage;
 _fn rlprint (arg)
     print arg
 
+inline gen-binary-op (f)
+    _fn (a b)
+        let a =
+            dispatch a
+            case Number (n)
+                n
+            default
+                error (.. "expected Number, got " ('type a))
+        let b =
+            dispatch b
+            case Number (n)
+                n
+            default
+                error (.. "expected Number, got " ('type b))
+        f a b
+
 let rl-primitives =
     do
-        let + - / // * ** < > <= >= == !=
+        let + - / // * ** < > <= >= == != =
+            va-map
+                gen-binary-op
+                _ + - / // * ** < > <= >= == !=
         let and or not
         let sugar-quote
         let true false
