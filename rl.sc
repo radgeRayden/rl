@@ -127,6 +127,24 @@ typedef+ _RLClosure
     inline __call (self args...)
         (bitcast self RLClosure) args...
 
+# RL SPECIAL FORMS
+# ================================================================================
+sugar _let (bindings body...)
+    let bindings =
+        fold (result = '()) for binding in (bindings as list)
+            sugar-match (binding as list)
+            case (name expr)
+                cons
+                    qq [let] [name] = [expr]
+                    result
+            default
+                error "invalid let syntax"
+    qq
+        [do]
+            [embed]
+                unquote-splice ('reverse bindings)
+            unquote-splice body...
+
 sugar _if (args...)
     sugar-match args...
     case (condition tclause fclause)
@@ -211,6 +229,9 @@ let rl-primitives =
         let fn = _fn
         let print = rlprint
 
+        # must be last!
+        let let = _let
+       
         locals;
 
 let argc argv = (launch-args)

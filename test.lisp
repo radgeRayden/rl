@@ -28,4 +28,12 @@
         (recurse (+ n 1))
         n)) 0)
 
+(print
+    (let ((a 10)
+          (b "banana")
+          (c 21))
+        (print b)
+        (print (+ a c))
+        (- a c)))
+
 (print (+ 1 2))
