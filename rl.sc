@@ -1,7 +1,6 @@
 using import struct
 using import Map
 using import enum
-global rl-env : (Map Symbol Value)
 
 # we use this in place of RLClosure, since it depends on RLValue.
 # Later on we'll add a method so it correctly implies to the function pointer on call.
@@ -248,6 +247,8 @@ fn parse-module-name (filename)
 let filename = (string (argv @ 2))
 
 hide-traceback;
+using import chaining
 load-module (parse-module-name filename) filename
     scope =
-        'bind rl-primitives list-handler-symbol list-handler
+        --> rl-primitives
+            'bind __ list-handler-symbol list-handler

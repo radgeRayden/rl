@@ -1,5 +1,6 @@
 (print ('reverse '(1 2 3)))
 (print "hello world")
+(print (empty? '()))
 
 (fn print3 (a b c)
     (print a)
