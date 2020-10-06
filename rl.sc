@@ -10,6 +10,9 @@ enum RLValue
     Symbol : Symbol
     List   : list
 
+    inline __repr (self)
+        'apply self ((T self) -> (repr self))
+
 spice box-value (v)
     let T = ('typeof v)
 
@@ -46,7 +49,9 @@ spice rl-call (self args...)
     let args = `(alloca-array RLValue [argc])
 
     for i a in (enumerate ('args args...))
-        sc_expression_append box-args `((args @ i) = (box-value a))
+        sc_expression_append box-args
+            spice-quote
+                (args @ i) = (dupe (box-value a))
 
     sc_expression_append box-args `args
     let call-expr =
@@ -58,14 +63,17 @@ spice rl-call (self args...)
         box-args
         call-expr
 
-spice bind-fn-args ()
-
 run-stage;
 
 typedef RLClosure : (storageof Closure)
     let __call = (box-pointer rl-call)
 
 run-stage;
+
+inline arity-check (expected n)
+    if (expected != n)
+        error
+            .. "expected " (tostring expected) " arguments, got " (tostring n)
 
 sugar _if ()
 sugar _fn (args...)
@@ -79,15 +87,11 @@ sugar _fn (args...)
         default
             error "incorrect function syntax"
 
-    inline arity-check (expected n)
-        if (expected != n)
-            error
-                .. "expected " (tostring expected) " arguments, got " (tostring n)
     let arg-bindings =
         fold (bindings = '()) for i arg in (enumerate args)
             cons
                 qq
-                    [let] [arg] = (args @ [i])
+                    [let] [arg] = ([@] args [i])
                 bindings
     qq
         [let] [name] =
@@ -100,12 +104,15 @@ sugar _fn (args...)
                 [RLClosure]
 
 run-stage;
+# RL FUNCTION DEFINITIONS
+# ================================================================================
+_fn rlprint (arg)
+    print arg
 
 let rl-primitives =
     do
         let + - / // * ** < > <= >= == !=
         let and or not
-        let print
         let sugar-quote
         let true false
         let cons
@@ -114,6 +121,7 @@ let rl-primitives =
         let empty? inline
         let if = _if
         let fn = _fn
+        let print = rlprint
 
         locals;
 

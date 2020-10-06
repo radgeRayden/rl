@@ -1,10 +1,9 @@
 (print ('reverse '(1 2 3)))
 (print "hello world")
 
-(fn map (f lst)
-    (if (empty? lst)
-        '())
-    (else
-        (cons (f (car lst)) (map (cdr lst) f))))
+(fn print3 (a b c)
+    (print a)
+    (print b)
+    (print c))
 
-(map (fn (x) (+ x 10)) '(1 2 3))
+(print3 "12" "23" "34")
