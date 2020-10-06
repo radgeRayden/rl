@@ -66,7 +66,7 @@ spice rl-call (self args...)
     let call-expr =
         'tag
             spice-quote
-                (bitcast self Closure) [argc] args
+                (storagecast self) [argc] args
             'anchor self
     spice-quote
         box-args
@@ -74,7 +74,15 @@ spice rl-call (self args...)
 
 run-stage;
 
-typedef RLClosure : (storageof Closure)
+let _dummy =
+    static-typify
+        fn (argc args)
+            raising Error
+            RLValue.Nil;
+        i32
+        (viewof (mutable@ RLValue))
+
+typedef RLClosure : (typeof _dummy)
     let __call = (box-pointer rl-call)
 
 run-stage;
@@ -105,14 +113,19 @@ sugar _fn (args...)
     qq
         [let] [name] =
             [bitcast]
-                [fn] (argc args)
-                    [arity-check] [(countof args)] argc
-                    unquote-splice arg-bindings
-                    [unlet] args
-                    unquote-splice body
+                [static-typify]
+                    [fn] (argc args)
+                        [arity-check] [(countof args)] argc
+                        unquote-splice arg-bindings
+                        [unlet] args
+                        unquote-splice body
+                        [RLValue.Nil];
+                    [i32]
+                    [(viewof (mutable@ RLValue))]
                 [RLClosure]
 
 run-stage;
+
 # RL FUNCTION DEFINITIONS
 # ================================================================================
 _fn rlprint (arg)
