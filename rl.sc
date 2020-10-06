@@ -20,7 +20,7 @@ enum RLValue
 
     inline type (self)
         'apply self
-            (T self) -> T.Name
+            (T self) -> (default-styler 'style-type (tostring T.Name))
     inline __repr (self)
         'apply self
             inline (T self)
@@ -35,7 +35,7 @@ enum RLValue
             f args...
         default
             hide-traceback;
-            error (.. "cannot call value of type " (tostring ('type self)))
+            error (.. "cannot call value of type " ('type self))
 
 let _dummy =
     static-typify
