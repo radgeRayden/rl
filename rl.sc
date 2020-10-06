@@ -115,11 +115,6 @@ typedef+ _RLClosure
     inline __call (self args...)
         (bitcast self RLClosure) args...
 
-inline arity-check (expected n)
-    if (expected != n)
-        error
-            .. "expected " (tostring expected) " arguments, got " (tostring n)
-
 sugar _if (args...)
     sugar-match args...
     case (condition tclause fclause)
@@ -133,12 +128,6 @@ sugar _if (args...)
                         [fclause]
     default
         error "incorrect if syntax"
-
-inline rl-conv-fn (f)
-    bitcast
-        static-typify f i32
-            viewof (mutable@ RLValue)
-        RLClosure
 
 sugar _fn (args...)
     let name args body =
@@ -157,6 +146,18 @@ sugar _fn (args...)
                 qq
                     [let] [arg] = ([@] args [i])
                 bindings
+
+    inline arity-check (expected n)
+        if (expected != n)
+            error
+                .. "expected " (tostring expected) " arguments, got " (tostring n)
+
+    inline rl-conv-fn (f)
+        bitcast
+            static-typify f i32
+                viewof (mutable@ RLValue)
+            RLClosure
+
     qq
         [let] [name] =
             [rl-conv-fn]
