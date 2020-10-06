@@ -12,7 +12,12 @@ enum RLValue
     Nil    = none
 
     inline __repr (self)
-        'apply self ((T self) -> (repr self))
+        'apply self
+            inline (T self)
+                static-if (T.Literal == this-type.String.Literal)
+                    deref self
+                else
+                    (repr self)
 
 spice box-value (v)
     let T = ('typeof v)
