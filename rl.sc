@@ -9,6 +9,7 @@ enum RLValue
     String : string
     Symbol : Symbol
     List   : list
+    Nil    = none
 
     inline __repr (self)
         'apply self ((T self) -> (repr self))
@@ -38,6 +39,9 @@ spice box-value (v)
     elseif (T == list)
         spice-quote
             RLValue.List (v as list)
+    elseif (T == Nothing)
+        spice-quote
+            RLValue.Nil (tuple)
     else
         error
             .. "could not box value of type " (repr T)
