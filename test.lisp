@@ -7,3 +7,7 @@
     (print c))
 
 (print3 "12" "23" "34")
+
+(fn ff (f) (f 1 2 3))
+(ff print3)
+(ff 3)

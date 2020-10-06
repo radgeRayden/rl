@@ -3,6 +3,10 @@ using import Map
 using import enum
 global rl-env : (Map Symbol Value)
 
+# we use this in place of RLClosure, since it depends on RLValue.
+# Later on we'll add a method so it correctly implies to the function pointer on call.
+typedef _RLClosure : voidstar
+
 enum RLValue
     Bool   : bool
     Number : f64
@@ -10,7 +14,11 @@ enum RLValue
     Symbol : Symbol
     List   : list
     Nil    = none
+    Closure : _RLClosure
 
+    inline tag (self)
+        'apply self
+            (T self) -> T.Name
     inline __repr (self)
         'apply self
             inline (T self)
@@ -18,6 +26,23 @@ enum RLValue
                     deref self
                 else
                     (repr self)
+
+    inline __call (self args...)
+        dispatch self
+        case Closure (f)
+            f args...
+        default
+            error (.. "cannot call value of type " (tostring ('tag self)))
+
+let _dummy =
+    static-typify
+        fn (argc args)
+            raising Error
+            RLValue.Nil;
+        i32
+        (viewof (mutable@ RLValue))
+
+typedef RLClosure : (typeof _dummy)
 
 spice box-value (v)
     let T = ('typeof v)
@@ -47,6 +72,9 @@ spice box-value (v)
     elseif (T == Nothing)
         spice-quote
             RLValue.Nil (tuple)
+    elseif (T == RLClosure)
+        spice-quote
+            RLValue.Closure (bitcast v _RLClosure)
     else
         error
             .. "could not box value of type " (repr T)
@@ -74,16 +102,12 @@ spice rl-call (self args...)
 
 run-stage;
 
-let _dummy =
-    static-typify
-        fn (argc args)
-            raising Error
-            RLValue.Nil;
-        i32
-        (viewof (mutable@ RLValue))
-
-typedef RLClosure : (typeof _dummy)
+typedef+ RLClosure
     let __call = (box-pointer rl-call)
+
+typedef+ _RLClosure
+    inline __call (self args...)
+        (bitcast self RLClosure) args...
 
 run-stage;
 
