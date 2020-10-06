@@ -22,4 +22,10 @@
 (ff print3)
 (print print3)
 
+((fn recurse (n)
+    (print n)
+    (if (< n 10)
+        (recurse (+ n 1))
+        n)) 0)
+
 (print (+ 1 2))

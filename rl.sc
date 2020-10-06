@@ -47,6 +47,18 @@ let _dummy =
 
 typedef RLClosure : (typeof _dummy)
 
+inline rlvalue-unbox-as (self T)
+    static-if ((typeof self) == RLValue)
+        if (('literal self) == T.Literal)
+            'unsafe-extract-payload self T.Type
+        else
+            hide-traceback;
+            error
+                .. "can't unbox value of type " ('type self)
+                    \ " as " (default-styler 'style-type (tostring T.Name))
+    else
+        imply self (elementof T.Type 0)
+
 # we use va to accomodate for receiving nothing.
 spice box-value (...)
     verify-count ('argcount ...) 0 1
@@ -54,7 +66,7 @@ spice box-value (...)
     let T = ('typeof v)
 
     if (T == RLValue)
-        return v
+        return `(deref (dupe v))
 
     if (T < integer)
         if (T == bool)
@@ -120,7 +132,7 @@ sugar _if (args...)
     case (condition tclause fclause)
         qq
             [embed]
-                [if] [condition]
+                [if] ([rlvalue-unbox-as] [condition] [RLValue.Bool])
                     [box-value]
                         [tclause]
                 else
@@ -180,19 +192,7 @@ _fn rlprint (arg)
 
 inline gen-binary-op (f)
     _fn (a b)
-        let a =
-            dispatch a
-            case Number (n)
-                n
-            default
-                error (.. "expected Number, got " ('type a))
-        let b =
-            dispatch b
-            case Number (n)
-                n
-            default
-                error (.. "expected Number, got " ('type b))
-        f a b
+        f (rlvalue-unbox-as a RLValue.Number) (rlvalue-unbox-as b RLValue.Number)
 
 let rl-primitives =
     do
