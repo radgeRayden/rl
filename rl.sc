@@ -199,7 +199,7 @@ let rl-primitives =
         let + - / // * ** < > <= >= == != =
             va-map
                 gen-binary-op
-                _ + - / // * ** < > <= >= == !=
+                _ + - / * ** < > <= >= == !=
         let and or not
         let sugar-quote
         let true false
