@@ -36,15 +36,11 @@ enum RLValue
             hide-traceback;
             error (.. "cannot call value of type " ('type self))
 
-let _dummy =
-    static-typify
-        fn (argc args)
-            raising Error
-            RLValue.Nil;
-        i32
-        (viewof (mutable@ RLValue))
-
-typedef RLClosure : (typeof _dummy)
+typedef RLClosure :
+    pointer
+        raises
+            function (uniqueof RLValue -1) i32 (viewof (mutable@ RLValue))
+            Error
 
 inline rlvalue-unbox-as (self T)
     static-if ((typeof self) == RLValue)
