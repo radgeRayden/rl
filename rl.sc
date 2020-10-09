@@ -39,7 +39,7 @@ enum RLValue
 typedef RLClosure :
     pointer
         raises
-            function (uniqueof RLValue -1) i32 (viewof (mutable@ RLValue))
+            function (uniqueof RLValue -1) i32 (viewof (mutable@ RLValue) 2)
             Error
 
 inline rlvalue-unbox-as (self T)
@@ -203,7 +203,7 @@ sugar _fn (args...)
     inline rl-conv-fn (f)
         bitcast
             static-typify f i32
-                viewof (mutable@ RLValue)
+                viewof (mutable@ RLValue) 2
             RLClosure
 
     qq
