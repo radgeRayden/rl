@@ -2,11 +2,11 @@ using import struct
 using import Map
 using import enum
 
-# we use this in place of RLClosure, since it depends on RLValue.
+# we use this in place of RLFunction, since it depends on RLValue.
 # Later on we'll add a method so it correctly implies to the function pointer on call.
-typedef _RLClosure : voidstar
+typedef _RLFunction : voidstar
     inline __repr (self)
-        default-styler 'style-type "Closure"
+        default-styler 'style-type "Function"
 
 enum RLValue
     Bool   : bool
@@ -15,7 +15,7 @@ enum RLValue
     Symbol : Symbol
     List   : list
     Nil    = none
-    Closure : _RLClosure
+    Function : _RLFunction
 
     inline type (self)
         'apply self
@@ -30,13 +30,13 @@ enum RLValue
 
     inline __call (self args...)
         dispatch self
-        case Closure (f)
+        case Function (f)
             f args...
         default
             hide-traceback;
             error (.. "cannot call value of type " ('type self))
 
-typedef RLClosure :
+typedef RLFunction :
     pointer
         raises
             function (uniqueof RLValue -1) i32 (viewof (mutable@ RLValue) 2)
@@ -85,9 +85,9 @@ spice box-value (...)
     elseif ((T == Nothing) or (T == void))
         spice-quote
             RLValue.Nil (tuple)
-    elseif (T == RLClosure)
+    elseif (T == RLFunction)
         spice-quote
-            RLValue.Closure (bitcast v _RLClosure)
+            RLValue.Function (bitcast v _RLFunction)
     else
         error
             .. "could not box value of type " (repr T)
@@ -109,8 +109,8 @@ fn box-Value (v)
         RLValue.List (v as list)
     elseif ((T == Nothing) or (T == void))
         RLValue.Nil (tuple)
-    elseif (T == RLClosure)
-        RLValue.Closure (bitcast (v as RLClosure) _RLClosure)
+    elseif (T == RLFunction)
+        RLValue.Function (bitcast (v as RLFunction) _RLFunction)
     else
         error
             .. "could not box value of type " (repr T)
@@ -138,12 +138,12 @@ spice rl-call (self args...)
 
 run-stage;
 
-typedef+ RLClosure
+typedef+ RLFunction
     let __call = (box-pointer rl-call)
 
-typedef+ _RLClosure
+typedef+ _RLFunction
     inline __call (self args...)
-        (bitcast self RLClosure) args...
+        (bitcast self RLFunction) args...
 
 # RL SPECIAL FORMS
 # ================================================================================
@@ -204,7 +204,7 @@ sugar _fn (args...)
         bitcast
             static-typify f i32
                 viewof (mutable@ RLValue) 2
-            RLClosure
+            RLFunction
 
     qq
         [let] [name] =
